@@ -43,7 +43,7 @@ def main():
 
     # Derived parameters
     dx = (xmax - xmin)/nx
-    
+
     # spatial points for plotting and for defining initial conditions
     x = np.arange(xmin, xmax, dx)
 
@@ -53,8 +53,8 @@ def main():
     phiAnalytic = cosBell((x - c*nt*dx)%(xmax - xmin), 0, 0.75)
 
     # Advect the profile using finite difference for all the time steps
-    phiFTCS = FTCS(phiOld.copy(), c, nt)
-    
+    phiFTCS = FTBS(phiOld.copy(), c, nt)
+
     # Calculate and print out error norms
     print("FTCS l2 error norm = ", l2ErrorNorm(phiFTCS, phiAnalytic))
     print("FTCS linf error norm = ", lInfErrorNorm(phiFTCS, phiAnalytic))
@@ -66,7 +66,7 @@ def main():
     plt.clf()
     plt.ion()
     plt.plot(x, phiOld, label='Initial', color='black')
-    plt.plot(x, phiAnalytic, label='Analytic', color='black', 
+    plt.plot(x, phiAnalytic, label='Analytic', color='black',
              linestyle='--', linewidth=2)
     plt.plot(x, phiFTCS, label='FTCS', color='blue')
     plt.axhline(0, linestyle=':', color='black')
@@ -74,8 +74,7 @@ def main():
     plt.legend(bbox_to_anchor=(1.15 , 1.1))
     plt.xlabel('$x$')
     input('press return to save file and continue')
-    plt.savefig('plots/changeThisName.pdf')
+    plt.savefig('plots/FTCS.pdf')
 
 ### Run the function main defined in this file                      ###
 main()
-
