@@ -52,36 +52,56 @@ def FTBS(phiOld, c, nt):
 
     return phi
 
-    def CTCS(phiOld, c, nt):
-        "Linear advection of profile in phiOld using CTCS, Courant number c"
-        "for nt time-steps"
+def CTCS(phiOld, c, nt):
+    "Linear advection of profile in phiOld using CTCS, Courant number c"
+    "for nt time-steps"
 
-        nx = len(phiOld)
+    nx = len(phiOld)
 
-        # new time-step array for phi
-        phi = phiOld.copy()
+    # new time-step array for phi
+    phi = phiOld.copy()
 
-        # in the CTCS to get phi at time t we need to use phi at time t-1
-        # in the scheme we will save the previous step in another vector, but to deal with it in the initial condition we chose to apply FTCS scheme and obtain a second initial condition.
-
-        # FTCS for the first time step to define a second initial condition
-        for j in range(nx):
-            phi[j] = phiOld[j] - c*\
-                (phiOld[(j)%nx] - phiOld[(j-1)%nx])
-            phi2 = phi.copy()
+    # in the CTCS to get phi at time t we need to use phi at time t-1
+    # in the scheme we will save the previous step in another vector, but to deal with it in the initial condition we chose to apply FTCS scheme and obtain a second initial condition.
+    # FTCS for the first time step to define a second initial condition
+    for j in range(nx):
+        phi[j] = phiOld[j] - c*\
+            (phiOld[(j)%nx] - phiOld[(j-1)%nx])
+        phi2 = phi.copy()
 
 
         # CTCS for the other time-steps. We will use phi2 to save the value of phi at time t-1 while we are calculating t+1
-        for it in range(nt)-1:
+    for it in range(nt)-1:
             # Loop through all space using remainder after division (%)
             # to cope with periodic boundary conditions
-            for j in range(nx):
-                phi[j] = phi2[j] - c\
-                         (phiOld[(j+1)%nx] - phiOld[(j-1)%nx])
+        for j in range(nx):
+            phi[j] = phi2[j] - c\
+                     (phiOld[(j+1)%nx] - phiOld[(j-1)%nx])
             # update arrays for next time-step
-            phi2 = phiOld.copy()
-            phiOld = phi.copy()
+        phi2 = phiOld.copy()
+        phiOld = phi.copy()
 
-        return phi
+    return phi
 
-    def BTCS(phiOld, c, nt):
+def BTCS(phiOld, c, nt):
+    "Linear advection of profile in phiOld using BTCS, Courant number c"
+    "for nt time-steps"
+    nx = len(phiOld)
+    #create the matrix M
+    M = np.zeros((nx,nx), dtype=np.float)
+    for j in range (nx):
+        M[j][j]=1
+        M[(j+1)%(nx)][j]=-c/2
+        M[(j-1)%(nx)][j]=c/2
+
+        #calculate the inverse of the matrix
+    M1 = np.linalg.inv(M)
+
+        # new time-step array for phi
+    phi = phiOld.copy()
+
+    for j in range(nt):
+        phi = M1 @ phiOld
+        phiOld = phi.copy()
+
+    return phi
