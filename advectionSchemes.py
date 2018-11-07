@@ -41,9 +41,9 @@ def FTBS(phiOld, c, nt):
         for j in range(nx):
             phi[j] = phiOld[j] - c*\
                      (phiOld[(j)%nx] - phiOld[(j-1)%nx])
-        # update arrays for next time-step
+            # update arrays for next time-step
         phiOld = phi.copy()
-
+        TOT[it]=T
     return phi
 
 def CTCS(phiOld, c, nt):
@@ -92,7 +92,6 @@ def BTCS(phiOld, c, nt):
     phi = phiOld.copy()
 
     for j in range(nt):
-        phi = nplinalg.solve(M, phi)
-        phiOld = phi.copy()
+        phi = np.linalg.solve(M, phi)
 
     return phi
