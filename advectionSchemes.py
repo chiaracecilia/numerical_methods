@@ -1,12 +1,6 @@
 # Numerical schemes for simulating linear advection for outer code
 # linearAdvect.py
 
-# If you are using Python 2.7 rather than Python 3, import various
-# functions from Python 3 such as to use real number division
-# rather than integer division. ie 3/2  = 1.5  rather than 3/2 = 1
-#from __future__ import absolute_import, division, print_function
-
-# The numpy package for numerical functions and pi
 import numpy as np
 
 def FTCS(phiOld, c, nt):
@@ -67,15 +61,15 @@ def CTCS(phiOld, c, nt):
     for j in range(nx):
         phi[j] = phiOld[j] - c*\
             (phiOld[(j)%nx] - phiOld[(j-1)%nx])
-        phi2 = phi.copy()
+    phi2 = phi.copy()
 
 
         # CTCS for the other time-steps. We will use phi2 to save the value of phi at time t-1 while we are calculating t+1
-    for it in range(nt)-1:
+    for it in range(nt-1):
             # Loop through all space using remainder after division (%)
             # to cope with periodic boundary conditions
         for j in range(nx):
-            phi[j] = phi2[j] - c\
+            phi[j] = phi2[j] - c*\
                      (phiOld[(j+1)%nx] - phiOld[(j-1)%nx])
             # update arrays for next time-step
         phi2 = phiOld.copy()
@@ -94,14 +88,11 @@ def BTCS(phiOld, c, nt):
         M[(j+1)%(nx)][j]=-c/2
         M[(j-1)%(nx)][j]=c/2
 
-        #calculate the inverse of the matrix
-    M1 = np.linalg.inv(M)
-
-        # new time-step array for phi
+    # new time-step array for phi
     phi = phiOld.copy()
 
     for j in range(nt):
-        phi = M1 @ phiOld
+        phi = nplinalg.solve(M, phi)
         phiOld = phi.copy()
 
     return phi
