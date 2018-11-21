@@ -35,6 +35,6 @@ def cosBell(x, alpha=0, beta=0.5):
     return np.where((x<beta) & (x>=alpha), bell(x), 0.)
 
 
-def mixed(x, a, b, c, d):
-    "A square wave in one location and a cosine bell in another"
-    return 1-(1-cosBell(x, a, b))*(1-squareWave(x, c, d))
+def sineWave(x):
+    "A sine wave transformed to take values from 0 to 1"
+    return 0.5+0.5*np.sin(2*np.pi*x)

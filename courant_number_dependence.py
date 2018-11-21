@@ -1,3 +1,7 @@
+# BTCS is unconditionally stable
+# In order to show this we will implement the numerical method with a very big Courant Number,
+# and show that this does not affect the stability of the numerical scheme
+#We will also show the behaviour of the other numerical schemes
 
 import matplotlib.pyplot as plt
 
@@ -7,15 +11,10 @@ from initialConditions import *
 from advectionSchemes import *
 from diagnostics import *
 
-# BTCS is unconditionally stable
-# In order to show this we will implement the numerical method with a very big Courant Number,
-# and show that this does not affect any characteristic of the numerical schemes
-
-#We will also show the behaviour of the other numerical schemes
-
-def scheme_comparison(init_cond, C):
-    "Advect the initial conditions using various advection schemes and"
-    "compare results"
+def courant_number_dependence(init_cond, C):
+    "Implement the schemes with the initial condition and courant number"
+    "given in input. Calling the function will result in two plots for the"
+    "implementation of the scheme with different courant number"
 
     # Parameters
     xmin = 0
@@ -38,16 +37,17 @@ def scheme_comparison(init_cond, C):
     phiAnalytic = init_cond((x - c*nt*dx)%(xmax - xmin), alpha, beta)
 
     # Advect the profile using finite difference for all the time steps
-    phiFTBS, TV_FTBS, numerical_mean_FTBS  = FTBS(phiOld.copy(), c, nt)
-    phiCTCS, TV_CTCS, numerical_mean_CTCS = CTCS(phiOld.copy(), c, nt, False)
-    phiBTCS, numerical_mean_BTCS = BTCS(phiOld.copy(), c, nt)
-    phiLAGR, TV_SL, numerical_mean_SL = SemiLagrangian(phiOld.copy(), c, nt, dx, x)
+    phiFTBS, TV_FTBS, numericalMassFTBS  = FTBS(phiOld.copy(), c, nt)
+    phiCTCS, TV_CTCS, numericalMassCTCS = CTCS(phiOld.copy(), c, nt, False)
+    phiBTCS, numericalMassBTCS = BTCS(phiOld.copy(), c, nt)
+    phiLAGR, TV_SL, numericalMassSL = SemiLagrangian(phiOld.copy(), c, nt, dx, x)
 
     # Plot the solutions
     font = {'size'   : 20}
     plt.rc('font', **font)
 
-    plt.figure(1)
+    # plot the advection with BTCS
+    plt.figure(1, figsize=(10,7))
     plt.clf()
     plt.ion()
     plt.plot(x, phiOld, label='Initial', color='black')
@@ -55,25 +55,24 @@ def scheme_comparison(init_cond, C):
              linestyle='--', linewidth=2)
     plt.plot(x, phiBTCS, label='BTCS with courant number %d' %c, color='blue')
     plt.axhline(0, linestyle=':', color='black')
-    plt.ylim([-0.2,1.2])
+    plt.ylim([-0.5,1.2])
     plt.legend()
     plt.xlabel('$x$')
     plt.savefig('plots/BTCS_unconditionally_stable.pdf')
 
-
-    plt.figure(2)
+    #plot the advection for all the numerical schemes
+    plt.figure(2, figsize=(10,7))
     plt.clf()
     plt.ion()
     plt.plot(x, phiOld, label='Initial', color='black')
     plt.plot(x, phiAnalytic, label='Analytic', color='black',
              linestyle='--', linewidth=2)
     plt.plot(x, phiFTBS, label='FTBS', color='blue')
-    plt.plot(x, phiCTCS, label='CTCS', color='red')
+    plt.plot(x, phiCTCS, label='CTCS', color='aqua')
     plt.plot(x, phiBTCS, label='BTCS', color='green')
-    plt.plot(x, phiLAGR, label='Lagrangian', color='yellow')
+    plt.plot(x, phiLAGR, label='Lagrangian', color='navy')
     plt.axhline(0, linestyle=':', color='black')
-    plt.ylim([-0.2,1.2])
+    plt.ylim([-0.5,1.2])
     plt.legend()
     plt.xlabel('$x$')
     plt.savefig('plots/dependence_courant_number.pdf')
-scheme_comparison(cosBell, 2)

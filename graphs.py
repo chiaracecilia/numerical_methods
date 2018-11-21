@@ -1,9 +1,13 @@
-#!/usr/bin/python3
-
 # Outer code for setting up the linear advection problem on a uniform
 # grid and calling the function to perform the linear advection and plot.
+#plot the different implementation of FTBS, CTCS, BTCS and SemiLAGRANGIAN advection schemes on the same graph
+#compared to the initial solution.
+#print the error norm
+#plot the total Variation
+#plot the results of advection with CTCS with or without clipping
 
 import matplotlib.pyplot as plt
+import timeit
 
 # read in all the linear advection schemes, initial conditions and other
 # code associated with this application
@@ -11,12 +15,8 @@ from initialConditions import *
 from advectionSchemes import *
 from diagnostics import *
 
-#plot the different implementation of FTBS, CTCS, BTCS and SemiLAGRANGIAN advection schemes on the same graph
-#compared to the initial solution.
 
-#print the error norm
-#cosinebell initial condition.
-def scheme_comparison(init_cond,name):
+def schemeComparison(init_cond,name):
     "Advect the initial conditions using various advection schemes and"
     "compare results"
 
@@ -48,14 +48,19 @@ def scheme_comparison(init_cond,name):
     phiCTCS_clipping, TV_CTCS_clipping, numerical_mean_CTCS_clipping  = CTCS(phiOld.copy(), c, nt, True)
 
     # Calculate and print out error norms
-    print("FTBS l2 error norm = ", l2ErrorNorm(phiFTBS, phiAnalytic), "CTCS l2 error norm = ", l2ErrorNorm(phiCTCS, phiAnalytic), "BTCS l2 error norm = ", l2ErrorNorm(phiBTCS, phiAnalytic), "Semi-Lagrangian l2 error norm = ", l2ErrorNorm(phiLAGR, phiAnalytic) )
-    print("FTBS linf error norm = ", lInfErrorNorm(phiFTBS, phiAnalytic), "CTCS linf error norm = ", lInfErrorNorm(phiCTCS, phiAnalytic), "BTCS linf error norm = ", lInfErrorNorm(phiBTCS, phiAnalytic),"FTBS linf error norm = ", lInfErrorNorm(phiLAGR, phiAnalytic) )
+    print("FTBS l2 error norm = ", l2ErrorNorm(phiFTBS, phiAnalytic), "CTCS l2 error norm = ", \
+    l2ErrorNorm(phiCTCS, phiAnalytic), "BTCS l2 error norm = ", l2ErrorNorm(phiBTCS, phiAnalytic), \
+    "Semi-Lagrangian l2 error norm = ", l2ErrorNorm(phiLAGR, phiAnalytic) )
+    print("FTBS linf error norm = ", lInfErrorNorm(phiFTBS, phiAnalytic), "CTCS linf error norm = ",\
+    lInfErrorNorm(phiCTCS, phiAnalytic), "BTCS linf error norm = ", lInfErrorNorm(phiBTCS, phiAnalytic),\
+    "FTBS linf error norm = ", lInfErrorNorm(phiLAGR, phiAnalytic) )
 
     # Plot the solutions
     font = {'size'   : 20}
     plt.rc('font', **font)
 
-    plt.figure(1)
+    #plot the results of the implementation of the schemes on the same initial condition
+    plt.figure(1, figsize=(10,7))
     plt.clf()
     plt.ion()
     plt.plot(x, phiOld, label='Initial', color='black')
@@ -71,7 +76,8 @@ def scheme_comparison(init_cond,name):
     plt.xlabel('$x$')
     plt.savefig('plots/'+name+'.pdf')
 
-    plt.figure(2)
+    # plot the total variation
+    plt.figure(2, figsize=(10,7))
     plt.clf()
     plt.ion()
     plt.plot(t, TV_FTBS, ".-",label='Total Variation FTBS', color='red')
@@ -80,10 +86,12 @@ def scheme_comparison(init_cond,name):
     plt.axhline(0, linestyle=':', color='black')
     plt.ylim([0,20])
     plt.legend()
-    plt.xlabel('$x$')
+    plt.xlabel('$t$')
+    plt.ylabel('$Total variation$')
     plt.savefig('plots/'+name+'_total_variation.pdf')
 
-    plt.figure(3)
+    # plot CTCS results with or without clipping
+    plt.figure(3, figsize=(10,7))
     plt.clf()
     plt.ion()
     plt.plot(x, phiOld, label='Initial', color='black')
@@ -97,6 +105,3 @@ def scheme_comparison(init_cond,name):
     plt.legend()
     plt.xlabel('$x$')
     plt.savefig('plots/'+name+'_clipping.pdf')
-
-scheme_comparison(cosBell, 'cosine_belle')
-scheme_comparison(squareWave, 'square_wave')
